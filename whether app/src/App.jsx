@@ -7,11 +7,14 @@ import { Input, Button, VStack, Text, Box } from "@chakra-ui/react";
 import { data } from "./data/data.js";
 function App() {
   const [cities, setCities] = useState([]);
-  const [weathers, setWeathers] = useState([]);
+  const [weathers, setWeathers] = useState();
   const handleCities = (cities) => {
     setCities(cities);
   };
   const handleSubmit = async () => {
+    if (cities.length < 1) {
+      return;
+    }
     try {
       const config = {
         headers: {
@@ -19,14 +22,15 @@ function App() {
         },
       };
       const url = "http://127.0.0.1:3000";
-      const { data } = await axios.post(
+      const response = await axios.post(
         `${url}/getWeather`,
         {
           cities: JSON.stringify(cities),
         },
         config
       );
-      setWeathers(data.data);
+      console.log(response.data);
+      if (response.status) setWeathers(response.data.data);
     } catch (err) {
       console.log("Error", err);
     }
@@ -60,7 +64,7 @@ function App() {
         spacing={4}
         templateColumns="repeat(auto-fill, minmax(200px, 1fr))"
       >
-        {weathers.map((weather, i) => (
+        {weathers?.map((weather, i) => (
           <WeatherCard key={i} weather={weather} />
         ))}
       </SimpleGrid>
